@@ -2,28 +2,11 @@ function checkStringLength( str, length ) {
   return str.length <= length;
 }
 
-console.log('--- checkStringLength tests ---');
-console.log(checkStringLength('проверяемая строка', 20)); // true
-// Длина строки ровно 18 символов
-console.log(checkStringLength('проверяемая строка', 18)); // true
-// Строка длиннее 10 символов
-console.log(checkStringLength('проверяемая строка', 10)); // false
-
 function isPalindrome(str) {
   str = str.toLowerCase().replaceAll(' ', '');
   const reversedStr = str.split('').reverse().join('');
   return str === reversedStr;
 }
-
-console.log('\n--- isPalindrome tests ---');
-// Строка является палиндромом
-console.log(isPalindrome('топот')); // true
-// Несмотря на разный регистр, тоже палиндром
-console.log(isPalindrome('ДовОд')); // true
-// Это не палиндром
-console.log(isPalindrome('Кекс')); // false
-// Это палиндром
-console.log(isPalindrome('Лёша на полке клопа нашёл ')); // true
 
 function getNumbers(value) {
   const str = String(value);
@@ -43,12 +26,23 @@ function getNumbers(value) {
   return parseInt(result, 10);
 }
 
-console.log('\n--- getNumbers tests ---');
-console.log(getNumbers('2023 год')); // 2023
-console.log(getNumbers('ECMAScript 2022')); // 2022
-console.log(getNumbers('1 кефир, 0.5 батона')); // 105
-console.log(getNumbers('агент 007')); // 7
-console.log(getNumbers('а я томат')); // NaN
-console.log(getNumbers(2023)); // 2023
-console.log(getNumbers(-1)); // 1
-console.log(getNumbers(1.5)); // 15
+
+function isMeetingValid(startWork, endWork, startMeeting, meetingDuration) {
+  const timeToMinutes = (time) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
+  const startWorkMinutes = timeToMinutes(startWork);
+  const endWorkMinutes = timeToMinutes(endWork);
+  const startMeetingMinutes = timeToMinutes(startMeeting);
+  const endMeetingMinutes = startMeetingMinutes + meetingDuration;
+
+  return startMeetingMinutes >= startWorkMinutes && endMeetingMinutes <= endWorkMinutes;
+}
+
+console.log(isMeetingValid('08:00', '17:30', '14:00', 90)); // true
+console.log(isMeetingValid('8:0', '10:0', '8:0', 120));     // true
+console.log(isMeetingValid('08:00', '14:30', '14:00', 90)); // false
+console.log(isMeetingValid('14:00', '17:30', '08:0', 90));  // false
+console.log(isMeetingValid('8:00', '17:30', '08:00', 900)); // false
