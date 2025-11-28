@@ -14,9 +14,6 @@
     <!-- Подключение файла main.js-->
       <script src="js/main.js" type="module"></script>
 
-    <!-- Подключение файла functions.js -->
-    <script src="js/functions.js"></script>
-
     <!-- Фильтрация изображений от других пользователей -->
     <section class="img-filters  img-filters--inactive  container">
       <h2 class="img-filters__title  visually-hidden">Фильтр фотографий</h2>
@@ -231,6 +228,18 @@
       </div>
     </section>
   </template>
+
+  <!-- Комментарии под фотографией -->
+  <template id="comment">
+  <li class="social__comment">
+    <img
+        class="social__picture"
+        src=""
+        alt=""
+        width="35" height="35">
+    <p class="social__text"></p>
+  </li>
+</template>
 
   <!-- Экран загрузки изображения -->
   <template id="messages">

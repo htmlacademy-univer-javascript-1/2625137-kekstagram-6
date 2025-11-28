@@ -1,8 +1,19 @@
-function getRandomNumber(min, max) {
-  const lower = Math.ceil(Math.min(Math.abs(min), Math.abs(max)));
-  const upper = Math.floor(Math.max(Math.abs(min), Math.abs(max)));
+const getRandomInteger = (a, b) => {
+  const lower = Math.ceil(Math.min(a, b));
+  const upper = Math.floor(Math.max(a, b));
+  const result = Math.random() * (upper - lower + 1) + lower;
+  return Math.floor(result);
+};
 
-  return Math.floor(Math.random() * (upper - lower + 1)) + lower;
-}
+const getRandomArrayElement = (array) => array[getRandomInteger(0, array.length - 1)];
 
-export {getRandomNumber};
+const createIdGenerator = () => {
+  let lastGeneratedId = 0;
+
+  return () => {
+    lastGeneratedId += 1;
+    return lastGeneratedId;
+  };
+};
+
+export { getRandomInteger, getRandomArrayElement, createIdGenerator };

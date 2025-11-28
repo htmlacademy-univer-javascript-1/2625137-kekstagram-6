@@ -1,100 +1,63 @@
-import {getRandomNumber} from './util.js';
+import { getRandomInteger, getRandomArrayElement, createIdGenerator } from './util.js';
 
-const NAMES = [
-  'Иван',
-  'Хуан Себастьян',
-  'Мария',
-  'Кристоф',
-  'Виктор',
-  'Юлия',
-  'Люпита',
-  'Вашингтон',
+const PICTURE_COUNT = 25;
+const AVATAR_COUNT = 6;
+const LIKE_MIN_COUNT = 15;
+const LIKE_MAX_COUNT = 200;
+const COMMENT_COUNT = 30;
+
+const COMMENT_LINES = [
+  'Всё отлично!',
+  'В целом всё неплохо. Но не всё.',
+  'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
+  'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.',
+  'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
+  'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
 ];
 
-const TEXT = `Всё отлично!
-В целом всё неплохо. Но не всё.
-Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.
-Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.
-Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.
-Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!`;
+const DESCRIPTIONS = [
+  'Летний чин на пляже. #raw #beach #summer #travel',
+  'Тестим новую камеру! #camera #test #new',
+  'Затусили с друзьями на море #sea #friends',
+  'Как же круто тут кормят #food #delicious',
+  'Отдыхаем... #chill #relax',
+  'Цените каждое мгновенье. #life',
+  'Вот это тачка! #car #drive',
+  '#fun #party #cool',
+  'Господи, это такая милота! #cute',
+  'Хорошо, когда в жизни есть #друзья'
+];
 
-const randomNameIndex = getRandomNumber(0, NAMES.length - 1);
+const NAMES = ['Николай', 'Аким', 'Ким', 'Харитон', 'Тимур', 'Степан'];
 
-const generateMessage = function(text){
+const generateCommentId = createIdGenerator();
 
-  const CLEANED_TEXT = text.replace(/\n/g, '');
-  const allSentences = CLEANED_TEXT.match(/[^.?!]+[.?!]+/g);
+const createMessage = () => Array.from(
+  { length: getRandomInteger(1, 2) },
+  () => getRandomArrayElement(COMMENT_LINES),
+).join(' ');
 
-  const numSentences = getRandomNumber(1, 2);
-  const maxIndex = allSentences.length - 1;
-  let message = '';
+const createComment = () => ({
+  id: generateCommentId(),
+  avatar: `img/avatar-${getRandomInteger(1, AVATAR_COUNT)}.svg`,
+  message: createMessage(),
+  name: getRandomArrayElement(NAMES),
+});
 
-  if (numSentences === 1) {
-    const randomIndex = getRandomNumber(0, maxIndex);
-    message = allSentences[randomIndex];
-  } else {
-    let firstIndex = getRandomNumber(0, maxIndex);
-    let secondIndex = getRandomNumber(0, maxIndex);
+const createPicture = (index) => ({
+  id: index,
+  url: `photos/${index}.jpg`,
+  description: getRandomArrayElement(DESCRIPTIONS),
+  likes: getRandomInteger(LIKE_MIN_COUNT, LIKE_MAX_COUNT),
+  comments: Array.from(
+    { length: getRandomInteger(0, COMMENT_COUNT) },
+    createComment,
+  ),
+});
 
+const getPictures = () => Array.from(
+  { length: PICTURE_COUNT },
+  (_, pictureIndex) => createPicture(pictureIndex + 1),
+);
 
-    while (secondIndex === firstIndex) {
-      secondIndex = getRandomNumber(0, maxIndex);
-    }
-
-    message = allSentences[firstIndex] + ' ' + allSentences[secondIndex];
-  }
-  return message;
-};
-
-let commentIdCounter = 0;
-
-const createComment = function(){
-  commentIdCounter += 1;
-  const newId = commentIdCounter;
-
-  return {
-    id: newId,
-    avatar: `img/avatar-${getRandomNumber(1, 6)}.svg`,
-    message: generateMessage(TEXT),
-    name: NAMES[randomNameIndex],
-  };
-};
-
-const generateComments = function(){
-
-  const COMMENTS = [];
-  const MAX_COUNT = getRandomNumber(0, 30);
-
-  for (let i = 0; i < MAX_COUNT; i++) {
-    const newComment = createComment();
-    COMMENTS.push(newComment);
-  }
-
-  return COMMENTS;
-};
-
-const createObject = function(){
-  const ID = getRandomNumber(1, 25);
-
-  return {
-    id: ID,
-    url: `photos/${ID}.jpg`,
-    description: `Описание фотографии №${ID}`,
-    likes: getRandomNumber(15, 200),
-    comments: generateComments(),
-  };
-};
-
-const generateObjects = function(){
-
-  let objects = [];
-
-  for (let i = 0; i < 25; i++) {
-    const newObject = createObject();
-    objects.push(newObject);
-  }
-
-  return objects;
-};
-
-export { generateObjects };
+export { getPictures };
