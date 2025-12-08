@@ -1,15 +1,7 @@
-if (typeof Pristine === 'undefined') {
-  console.error('Pristine не загружен! Проверь подключение в HTML');
-}
+import { resetEffects } from './effects.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.querySelector('#upload-select-image');
-
-  if (!form) {
-    console.warn('Форма не найдена, валидация отключена');
-    return;
-  }
-
   const hashtagInput = form.querySelector('.text__hashtags');
   const commentInput = form.querySelector('.text__description');
   const uploadInput = document.querySelector('#upload-file');
@@ -53,9 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return uniqueHashtags.size === hashtags.length;
   };
 
-  const validateComment = (value) => {
-    return value.length <= 140;
-  };
+  const validateComment = (value) => value.length <= 140;
+
 
   pristine.addValidator(hashtagInput, validateHashtags, 'Некорректные хэш-теги');
   pristine.addValidator(commentInput, validateComment, 'Длина комментария не должна превышать 140 символов');
@@ -85,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     form.reset();
     pristine.reset();
     uploadInput.value = '';
+    resetEffects();
 
     document.removeEventListener('keydown', onDocumentKeydown);
     cancelButton.removeEventListener('click', closeForm);
@@ -108,6 +100,4 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   uploadInput.addEventListener('change', openForm);
-
-  console.log('Валидация формы инициализирована');
 });

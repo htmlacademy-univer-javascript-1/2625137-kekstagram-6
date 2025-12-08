@@ -1393,5 +1393,10 @@ main {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
+}
+
+.img-upload__preview img {
+  max-width: 100%;
+  height: auto;
 }
