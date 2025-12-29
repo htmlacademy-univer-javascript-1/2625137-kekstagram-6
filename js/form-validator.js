@@ -14,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const uploadOverlay = form.querySelector('.img-upload__overlay');
   const cancelButton = form.querySelector('#upload-cancel');
   const submitButton = form.querySelector('#upload-submit');
+  const previewImage = document.querySelector('.img-upload__preview img');
+  const effectsPreviews = document.querySelectorAll('.effects__preview');
+
+  const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 
   const pristine = new Pristine(form, {
     classTo: 'img-upload__field-wrapper',
@@ -36,6 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.removeEventListener('keydown', onDocumentKeydown);
     cancelButton.removeEventListener('click', closeForm);
     form.removeEventListener('submit', onFormSubmit);
+
+    previewImage.src = 'img/upload-default-image.jpg';
+    effectsPreviews.forEach((preview) => {
+      preview.style.backgroundImage = '';
+    });
   }
 
   function onDocumentKeydown(evt) {
@@ -48,7 +57,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function loadImage() {
+    const file = uploadInput.files[0];
+    if (!file) {
+      return;
+    }
+
+    const fileName = file.name.toLowerCase();
+    const matches = FILE_TYPES.some((type) => fileName.endsWith(type));
+
+    if (!matches) {
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.addEventListener('load', () => {
+      previewImage.src = reader.result;
+      effectsPreviews.forEach((preview) => {
+        preview.style.backgroundImage = `url(${reader.result})`;
+      });
+    });
+
+    reader.readAsDataURL(file);
+  }
+
   function openForm() {
+    loadImage();
     uploadOverlay.classList.remove('hidden');
     document.body.classList.add('modal-open');
     document.addEventListener('keydown', onDocumentKeydown);
