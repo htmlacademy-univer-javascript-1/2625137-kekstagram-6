@@ -24,33 +24,130 @@ document.addEventListener('DOMContentLoaded', () => {
     errorTextClass: 'img-upload__error'
   });
 
-  const validateHashtagCount = (value) => {
-    if (!value.trim()) return true;
+  function closeForm() {
+    uploadOverlay.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+
+    form.reset();
+    pristine.reset();
+    uploadInput.value = '';
+    resetEffects();
+
+    document.removeEventListener('keydown', onDocumentKeydown);
+    cancelButton.removeEventListener('click', closeForm);
+    form.removeEventListener('submit', onFormSubmit);
+  }
+
+  function onDocumentKeydown(evt) {
+    if (evt.key === 'Escape') {
+      if (evt.target === hashtagInput || evt.target === commentInput) {
+        return;
+      }
+      evt.preventDefault();
+      closeForm();
+    }
+  }
+
+  function openForm() {
+    uploadOverlay.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    document.addEventListener('keydown', onDocumentKeydown);
+    cancelButton.addEventListener('click', closeForm);
+    form.addEventListener('submit', onFormSubmit);
+  }
+
+  function showMessage(templateId) {
+    const template = document.querySelector(`#${templateId}`);
+    const messageElement = template.content.querySelector(`.${templateId}`).cloneNode(true);
+    document.body.appendChild(messageElement);
+
+    function onMessageKeydown(evt) {
+      if (evt.key === 'Escape') {
+        closeMessage();
+      }
+    }
+
+    function onDocumentClick(evt) {
+      if (!evt.target.closest(`.${templateId}__inner`)) {
+        closeMessage();
+      }
+    }
+
+    function closeMessage() {
+      messageElement.remove();
+      document.removeEventListener('keydown', onMessageKeydown);
+      document.removeEventListener('click', onDocumentClick);
+    }
+
+    const closeButton = messageElement.querySelector(`.${templateId}__button`);
+    closeButton.addEventListener('click', closeMessage);
+    document.addEventListener('keydown', onMessageKeydown);
+    document.addEventListener('click', onDocumentClick);
+  }
+
+  function validateHashtagCount(value) {
+    if (!value.trim()) {return true;}
     const hashtags = value.trim().split(/\s+/);
     return hashtags.length <= 5;
-  };
+  }
 
-  const validateHashtagFormat = (value) => {
-    if (!value.trim()) return true;
+  function validateHashtagFormat(value) {
+    if (!value.trim()) {return true;}
     const hashtags = value.trim().split(/\s+/);
 
     for (const hashtag of hashtags) {
-      if (hashtag === '#') return false;
-      if (hashtag.length > 20) return false;
-      if (!/^#[A-Za-zА-Яа-яЁё0-9]+$/.test(hashtag)) return false;
+      if (hashtag === '#') {return false;}
+      if (hashtag.length > 20) {return false;}
+      if (!/^#[A-Za-zА-Яа-яЁё0-9]+$/.test(hashtag)) {return false;}
     }
     return true;
-  };
+  }
 
-  const validateHashtagUnique = (value) => {
-    if (!value.trim()) return true;
+  function validateHashtagUnique(value) {
+    if (!value.trim()) {return true;}
     const hashtags = value.trim().split(/\s+/);
     const lowerCaseHashtags = hashtags.map((tag) => tag.toLowerCase());
     const uniqueHashtags = new Set(lowerCaseHashtags);
     return uniqueHashtags.size === hashtags.length;
-  };
+  }
 
-  const validateComment = (value) => value.length <= 140;
+  function validateComment(value) {
+    return value.length <= 140;
+  }
+
+  function blockSubmitButton() {
+    submitButton.disabled = true;
+    submitButton.textContent = 'Отправляю...';
+  }
+
+  function unblockSubmitButton() {
+    submitButton.disabled = false;
+    submitButton.textContent = 'Опубликовать';
+  }
+
+  function onFormSubmit(evt) {
+    evt.preventDefault();
+
+    const isValid = pristine.validate();
+    if (!isValid) {
+      return;
+    }
+
+    blockSubmitButton();
+    const formData = new FormData(form);
+
+    sendData(formData)
+      .then(() => {
+        closeForm();
+        showMessage('success');
+      })
+      .catch(() => {
+        showMessage('error');
+      })
+      .finally(() => {
+        unblockSubmitButton();
+      });
+  }
 
   pristine.addValidator(
     hashtagInput,
@@ -83,101 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
     1,
     false
   );
-
-  const showMessage = (templateId) => {
-    const template = document.querySelector(`#${templateId}`);
-    const messageElement = template.content.querySelector(`.${templateId}`).cloneNode(true);
-    document.body.appendChild(messageElement);
-
-    const closeMessage = () => {
-      messageElement.remove();
-      document.removeEventListener('keydown', onMessageKeydown);
-      document.removeEventListener('click', onDocumentClick);
-    };
-
-    const onMessageKeydown = (evt) => {
-      if (evt.key === 'Escape') {
-        closeMessage();
-      }
-    };
-
-    const onDocumentClick = (evt) => {
-      if (!evt.target.closest(`.${templateId}__inner`)) {
-        closeMessage();
-      }
-    };
-
-    const closeButton = messageElement.querySelector(`.${templateId}__button`);
-    closeButton.addEventListener('click', closeMessage);
-    document.addEventListener('keydown', onMessageKeydown);
-    document.addEventListener('click', onDocumentClick);
-  };
-
-  const blockSubmitButton = () => {
-    submitButton.disabled = true;
-    submitButton.textContent = 'Отправляю...';
-  };
-
-  const unblockSubmitButton = () => {
-    submitButton.disabled = false;
-    submitButton.textContent = 'Опубликовать';
-  };
-
-  const onDocumentKeydown = (evt) => {
-    if (evt.key === 'Escape') {
-      if (evt.target === hashtagInput || evt.target === commentInput) {
-        return;
-      }
-      evt.preventDefault();
-      closeForm();
-    }
-  };
-
-  const onFormSubmit = (evt) => {
-    evt.preventDefault();
-
-    const isValid = pristine.validate();
-    if (!isValid) {
-      return;
-    }
-
-    blockSubmitButton();
-    const formData = new FormData(form);
-
-    sendData(formData)
-      .then(() => {
-        closeForm();
-        showMessage('success');
-      })
-      .catch(() => {
-        showMessage('error');
-      })
-      .finally(() => {
-        unblockSubmitButton();
-      });
-  };
-
-  const closeForm = () => {
-    uploadOverlay.classList.add('hidden');
-    document.body.classList.remove('modal-open');
-
-    form.reset();
-    pristine.reset();
-    uploadInput.value = '';
-    resetEffects();
-
-    document.removeEventListener('keydown', onDocumentKeydown);
-    cancelButton.removeEventListener('click', closeForm);
-    form.removeEventListener('submit', onFormSubmit);
-  };
-
-  const openForm = () => {
-    uploadOverlay.classList.remove('hidden');
-    document.body.classList.add('modal-open');
-    document.addEventListener('keydown', onDocumentKeydown);
-    cancelButton.addEventListener('click', closeForm);
-    form.addEventListener('submit', onFormSubmit);
-  };
 
   hashtagInput.addEventListener('input', () => {
     pristine.validate();

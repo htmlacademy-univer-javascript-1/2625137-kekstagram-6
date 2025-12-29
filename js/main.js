@@ -1,12 +1,13 @@
 import { getData } from './api.js';
-import { renderGallery } from './gallery.js';
+import { initFilters } from './filter.js';
+import { showAlert } from './utils.js';
 import './form-validator.js';
 import './effects.js';
 
 getData()
   .then((pictures) => {
-    renderGallery(pictures);
+    initFilters(pictures);
   })
   .catch(() => {
-    alert('Не удалось загрузить фотографии. Попробуйте обновить страницу.');
+    showAlert('Не удалось загрузить фотографии. Попробуйте обновить страницу.');
   });
