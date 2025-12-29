@@ -14,10 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const uploadOverlay = form.querySelector('.img-upload__overlay');
   const cancelButton = form.querySelector('#upload-cancel');
   const submitButton = form.querySelector('#upload-submit');
-  const previewImage = document.querySelector('.img-upload__preview img');
-  const effectsPreviews = document.querySelectorAll('.effects__preview');
-
-  const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 
   const pristine = new Pristine(form, {
     classTo: 'img-upload__field-wrapper',
@@ -25,26 +21,19 @@ document.addEventListener('DOMContentLoaded', () => {
     successClass: 'img-upload__field-wrapper--valid',
     errorTextParent: 'img-upload__field-wrapper',
     errorTextTag: 'div',
-    errorTextClass: 'img-upload__error'
+    errorTextClass: 'pristine-error'
   });
 
   function closeForm() {
     uploadOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
-
     form.reset();
     pristine.reset();
     uploadInput.value = '';
     resetEffects();
-
     document.removeEventListener('keydown', onDocumentKeydown);
     cancelButton.removeEventListener('click', closeForm);
     form.removeEventListener('submit', onFormSubmit);
-
-    previewImage.src = 'img/upload-default-image.jpg';
-    effectsPreviews.forEach((preview) => {
-      preview.style.backgroundImage = '';
-    });
   }
 
   function onDocumentKeydown(evt) {
@@ -57,33 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function loadImage() {
-    const file = uploadInput.files[0];
-    if (!file) {
-      return;
-    }
-
-    const fileName = file.name.toLowerCase();
-    const matches = FILE_TYPES.some((type) => fileName.endsWith(type));
-
-    if (!matches) {
-      return;
-    }
-
-    const reader = new FileReader();
-
-    reader.addEventListener('load', () => {
-      previewImage.src = reader.result;
-      effectsPreviews.forEach((preview) => {
-        preview.style.backgroundImage = `url(${reader.result})`;
-      });
-    });
-
-    reader.readAsDataURL(file);
-  }
-
   function openForm() {
-    loadImage();
     uploadOverlay.classList.remove('hidden');
     document.body.classList.add('modal-open');
     document.addEventListener('keydown', onDocumentKeydown);
@@ -121,33 +84,36 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function validateHashtagCount(value) {
-    if (!value.trim()) {return true;}
-    const hashtags = value.trim().split(/\s+/);
+    const hashtags = value.trim().split(/\s+/).filter(Boolean);
     return hashtags.length <= 5;
   }
 
   function validateHashtagFormat(value) {
-    if (!value.trim()) {return true;}
-    const hashtags = value.trim().split(/\s+/);
+    const hashtags = value.trim().split(/\s+/).filter(Boolean);
 
     for (const hashtag of hashtags) {
-      if (hashtag === '#') {return false;}
-      if (hashtag.length > 20) {return false;}
-      if (!/^#[A-Za-zА-Яа-яЁё0-9]+$/.test(hashtag)) {return false;}
+      if (hashtag === '#') {
+        return false;
+      }
+      if (hashtag.length > 20) {
+        return false;
+      }
+      if (!/^#[A-Za-zА-Яа-яЁё0-9]+$/.test(hashtag)) {
+        return false;
+      }
     }
     return true;
   }
 
   function validateHashtagUnique(value) {
-    if (!value.trim()) {return true;}
-    const hashtags = value.trim().split(/\s+/);
+    const hashtags = value.trim().split(/\s+/).filter(Boolean);
     const lowerCaseHashtags = hashtags.map((tag) => tag.toLowerCase());
     const uniqueHashtags = new Set(lowerCaseHashtags);
     return uniqueHashtags.size === hashtags.length;
   }
 
   function validateComment(value) {
-    return value.length <= 140;
+    return value.length <= 130;
   }
 
   function blockSubmitButton() {
@@ -220,7 +186,15 @@ document.addEventListener('DOMContentLoaded', () => {
     pristine.validate();
   });
 
+  hashtagInput.addEventListener('change', () => {
+    pristine.validate();
+  });
+
   commentInput.addEventListener('input', () => {
+    pristine.validate();
+  });
+
+  commentInput.addEventListener('change', () => {
     pristine.validate();
   });
 

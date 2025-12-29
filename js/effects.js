@@ -48,7 +48,16 @@ noUiSlider.create(effectLevelSlider, {
 
 effectLevelSlider.noUiSlider.on('update', (values) => {
   const value = values[0];
-  effectLevelValue.value = value;
+  const num = parseFloat(value);
+
+  if (currentEffect === 'chrome' || currentEffect === 'sepia' ||
+      currentEffect === 'phobos' || currentEffect === 'heat') {
+    effectLevelValue.value = num % 1 === 0 ? num.toString() : num.toFixed(1);
+  } else if (currentEffect === 'marvin') {
+    effectLevelValue.value = Math.round(num);
+  } else {
+    effectLevelValue.value = value;
+  }
 
   if (currentEffect !== 'none') {
     const effect = EFFECTS[currentEffect];
@@ -64,14 +73,19 @@ effectsList.addEventListener('change', (evt) => {
       effectLevelContainer.classList.add('hidden');
       previewImage.style.filter = 'none';
       effectLevelSlider.noUiSlider.set(100);
+      effectLevelValue.value = 100;
     } else {
       effectLevelContainer.classList.remove('hidden');
       const effect = EFFECTS[currentEffect];
+
       effectLevelSlider.noUiSlider.updateOptions({
         range: { min: effect.min, max: effect.max },
         start: effect.max,
         step: effect.step
       });
+
+      effectLevelValue.value = effect.max;
+      previewImage.style.filter = `${effect.filter}(${effect.max}${effect.unit})`;
     }
   }
 });
