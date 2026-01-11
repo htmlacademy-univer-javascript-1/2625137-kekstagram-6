@@ -24,29 +24,22 @@ const effectsList = document.querySelector('.effects__list');
 let currentScale = SCALE_DEFAULT;
 let currentEffect = 'none';
 
-const updateScale = () => {
+function updateScale() {
   scaleControl.value = `${currentScale}%`;
   previewImage.style.transform = `scale(${currentScale / 100})`;
-};
+}
 
-scaleSmaller.addEventListener('click', () => {
+function onScaleSmallerClick() {
   currentScale = Math.max(currentScale - SCALE_STEP, SCALE_MIN);
   updateScale();
-});
+}
 
-scaleBigger.addEventListener('click', () => {
+function onScaleBiggerClick() {
   currentScale = Math.min(currentScale + SCALE_STEP, SCALE_MAX);
   updateScale();
-});
+}
 
-noUiSlider.create(effectLevelSlider, {
-  range: { min: 0, max: 100 },
-  start: 100,
-  step: 1,
-  connect: 'lower',
-});
-
-effectLevelSlider.noUiSlider.on('update', (values) => {
+function onEffectSliderUpdate(values) {
   const value = values[0];
   const num = parseFloat(value);
 
@@ -63,9 +56,9 @@ effectLevelSlider.noUiSlider.on('update', (values) => {
     const effect = EFFECTS[currentEffect];
     previewImage.style.filter = `${effect.filter}(${value}${effect.unit})`;
   }
-});
+}
 
-effectsList.addEventListener('change', (evt) => {
+function onEffectsListChange(evt) {
   if (evt.target.matches('input[type="radio"]')) {
     currentEffect = evt.target.value;
 
@@ -88,9 +81,9 @@ effectsList.addEventListener('change', (evt) => {
       previewImage.style.filter = `${effect.filter}(${effect.max}${effect.unit})`;
     }
   }
-});
+}
 
-const resetEffects = () => {
+function resetEffects() {
   currentScale = SCALE_DEFAULT;
   currentEffect = 'none';
 
@@ -111,7 +104,20 @@ const resetEffects = () => {
       step: 1
     });
   }
-};
+}
+
+scaleSmaller.addEventListener('click', onScaleSmallerClick);
+scaleBigger.addEventListener('click', onScaleBiggerClick);
+
+noUiSlider.create(effectLevelSlider, {
+  range: { min: 0, max: 100 },
+  start: 100,
+  step: 1,
+  connect: 'lower',
+});
+
+effectLevelSlider.noUiSlider.on('update', onEffectSliderUpdate);
+effectsList.addEventListener('change', onEffectsListChange);
 
 updateScale();
 effectLevelContainer.classList.add('hidden');
