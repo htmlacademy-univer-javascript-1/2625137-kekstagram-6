@@ -1,6 +1,6 @@
 const ALERT_SHOW_TIME = 5000;
 
-export const showAlert = (message) => {
+function showAlert(message) {
   const alertContainer = document.createElement('div');
 
   alertContainer.style.zIndex = '100';
@@ -13,7 +13,6 @@ export const showAlert = (message) => {
   alertContainer.style.textAlign = 'center';
   alertContainer.style.backgroundColor = '#ff4d4d';
   alertContainer.style.color = '#ffffff';
-  alertContainer.style.fontFamily = 'Arial, sans-serif';
 
   alertContainer.textContent = message;
   document.body.append(alertContainer);
@@ -21,7 +20,10 @@ export const showAlert = (message) => {
   setTimeout(() => {
     alertContainer.remove();
   }, ALERT_SHOW_TIME);
-};
+}
 
-export const isEscapeKey = (evt) => evt.key === 'Escape';
-export const isEnterKey = (evt) => evt.key === 'Enter';
+function isEscapeKey(evt) {
+  return evt.key === 'Escape';
+}
+
+export { showAlert, isEscapeKey };

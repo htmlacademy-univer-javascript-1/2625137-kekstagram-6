@@ -1,4 +1,5 @@
 import { renderGallery } from './gallery.js';
+import { DEBOUNCE_DELAY } from './constants.js';
 
 const filtersContainer = document.querySelector('.img-filters');
 const filtersForm = filtersContainer.querySelector('.img-filters__form');
@@ -8,7 +9,7 @@ const showFilters = () => {
   filtersContainer.classList.remove('img-filters--inactive');
 };
 
-const debounce = (callback, timeoutDelay = 500) => {
+const debounce = (callback, timeoutDelay = DEBOUNCE_DELAY) => {
   let timeoutId;
   return (...rest) => {
     clearTimeout(timeoutId);
@@ -54,7 +55,7 @@ const initFilters = (pictures) => {
     renderGallery(filteredPictures);
   };
 
-  const debouncedApplyFilter = debounce(applyFilter, 500);
+  const debouncedApplyFilter = debounce(applyFilter, DEBOUNCE_DELAY);
 
   filterButtons.forEach((button) => {
     button.addEventListener('click', (evt) => {
